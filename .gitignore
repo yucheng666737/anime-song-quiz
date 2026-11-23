@@ -1,0 +1,13 @@
+# Runtime generated config (never commit real secrets/endpoints)
+config.js
+.env
+.env.*
+
+# Build / CI staging
+_site/
+
+# Python / OS artifacts
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db

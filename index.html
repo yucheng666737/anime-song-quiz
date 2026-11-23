@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>猜動漫歌 ♪</title>
+<style>
+  :root{
+    --peach-1:#FFE9DC;
+    --peach-2:#FFD7C0;
+    --card:#FFFFFF;
+    --card-soft:#FFF6F1;
+    --coral:#F2776B;
+    --coral-deep:#E8584A;
+    --coral-soft:#FBC9C0;
+    --coral-ghost:#FDE5E0;
+    --ink:#4A3C36;
+    --ink-soft:#8C766C;
+    --muted:#C7AEA4;
+    --good:#3FB984;
+    --bad:#E8584A;
+    --ring:0 12px 30px rgba(226,108,94,.18);
+    --ring-sm:0 6px 16px rgba(226,108,94,.14);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Segoe UI Rounded","Hiragino Maru Gothic ProN","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 12% -10%, #FFF3EA 0%, transparent 60%),
+      linear-gradient(160deg,var(--peach-1) 0%,var(--peach-2) 100%);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 22px 60px}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .logo{display:flex;align-items:center;gap:10px;background:#fff;padding:8px 16px;border-radius:14px;box-shadow:var(--ring-sm);font-weight:800;color:var(--coral);letter-spacing:.3px}
+  .logo .dot{width:22px;height:22px;border-radius:8px;background:var(--coral);display:grid;place-items:center;color:#fff;font-size:13px}
+  .scoreboard{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{background:#fff;border-radius:14px;padding:8px 13px;box-shadow:var(--ring-sm);text-align:center;min-width:72px}
+  .pill .n{font-size:19px;font-weight:800;color:var(--coral);line-height:1}
+  .pill.best .n{color:var(--coral-deep)}
+  .pill .l{font-size:11px;color:var(--ink-soft);margin-top:3px}
+
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:22px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border-radius:26px;box-shadow:var(--ring);padding:26px}
+  @media(max-width:520px){.card{padding:20px 16px}}
+  .hero{background:linear-gradient(135deg,#fff 0%,var(--card-soft) 100%);position:relative;overflow:hidden}
+  .hero h1{margin:0;color:var(--coral);font-size:34px;font-weight:800}
+  .hero p{margin:8px 0 0;color:var(--ink-soft);font-size:14px;line-height:1.7}
+  .hero .note{position:absolute;right:-10px;top:-18px;font-size:120px;color:var(--coral-ghost);font-weight:800;transform:rotate(12deg);user-select:none;pointer-events:none}
+
+  /* ---- settings panel ---- */
+  .panel{display:flex;flex-direction:column;gap:16px}
+  .seg{display:flex;background:var(--coral-ghost);border-radius:16px;padding:5px;gap:4px}
+  .seg button{flex:1;border:0;background:transparent;padding:11px 8px;border-radius:12px;font-weight:700;color:var(--coral-deep);cursor:pointer;font-size:14px;font-family:inherit;transition:background-color .15s,color .15s}
+  .seg button.on{background:var(--coral);color:#fff;box-shadow:var(--ring-sm)}
+  .seg button .badge{font-size:11px;opacity:.8;font-weight:600;margin-left:3px}
+  .vocal-note{font-size:12.5px;color:var(--coral-deep);background:var(--card-soft);border:1.5px solid var(--coral-ghost);border-radius:12px;padding:10px 12px;line-height:1.6}
+  .block{border:2px solid var(--coral-ghost);border-radius:18px;padding:16px 18px}
+  .block h4{margin:0 0 10px;font-size:14px;color:var(--coral-deep);font-weight:800}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  select,input[type=number]{font-family:inherit;font-size:15px;color:var(--ink);background:#fff;border:2px solid var(--coral-ghost);border-radius:12px;padding:9px 12px;font-weight:600;cursor:pointer;outline:none}
+  select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--coral-deep);outline-offset:2px}
+  .arrowsep{color:var(--ink-soft);font-weight:700}
+  .presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{border:1.5px solid var(--coral-ghost);background:var(--card-soft);color:var(--coral-deep);border-radius:10px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background-color .12s,color .12s,border-color .12s}
+  .chip:hover{border-color:var(--coral-soft);background:#fff}
+  .chip.active{background:var(--coral);color:#fff;border-color:var(--coral)}
+  .check{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:600;color:var(--ink)}
+  .check input{width:18px;height:18px;accent-color:var(--coral);cursor:pointer}
+  .btn{border:0;border-radius:18px;padding:16px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:background-color .15s,transform .15s;width:100%}
+  .btn-primary{background:var(--coral);color:#fff;box-shadow:var(--ring)}
+  .btn-primary:hover:not(:disabled){background:var(--coral-deep);transform:translateY(-1px)}
+  .btn-primary:disabled{background:var(--coral-soft);cursor:not-allowed;transform:none}
+  .btn-share{border:1.5px solid var(--coral-ghost);background:var(--card-soft);color:var(--coral-deep);border-radius:14px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;transition:background-color .15s,border-color .15s}
+  .btn-share:hover{background:#fff;border-color:var(--coral-soft)}
+  .hint-link{border:0;background:transparent;align-self:center;color:var(--coral-deep);font-weight:700;font-size:13px;text-decoration:underline;cursor:pointer;font-family:inherit;padding:4px 8px}
+  .rangelabel{font-size:13px;color:var(--ink-soft);margin-bottom:10px}
+  .rangelabel b{color:var(--coral-deep)}
+
+  /* ---- player / question ---- */
+  .play-area{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center}
+  @media(max-width:620px){
+    .play-area{grid-template-columns:1fr;gap:16px}
+  }
+  .cover{width:100%;max-width:200px;margin:0 auto;aspect-ratio:1;border-radius:22px;border:0;padding:0;font-family:inherit;background:linear-gradient(135deg,var(--coral) 0%,var(--coral-deep) 100%);display:grid;place-items:center;color:#fff;box-shadow:var(--ring);overflow:hidden;position:relative;cursor:pointer}
+  .cover.revealed{cursor:default}
+  .cover img{width:100%;height:100%;object-fit:cover;display:block}
+  .cover .q{font-size:60px;font-weight:800;opacity:.92}
+  .cover .cap{position:absolute;bottom:16px;font-size:13px;font-weight:700;opacity:.9}
+
+  .qinfo h2{margin:0 0 6px;font-size:26px;color:var(--coral);font-weight:800;letter-spacing:.5px;line-height:1.35;word-break:break-word}
+  .qinfo .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:10px;font-weight:700}
+  .facts{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+  .fact{font-size:15px;font-weight:700;color:var(--coral-deep);display:flex;align-items:baseline;flex-wrap:wrap;gap:4px}
+  .fact .v{color:var(--ink);word-break:break-word}
+  .fact .tip{border:0;background:transparent;padding:2px 6px;font-family:inherit;font-size:12px;color:var(--coral);text-decoration:underline;cursor:pointer;font-weight:700}
+  .fact .tip.spent{color:var(--muted);text-decoration:none;cursor:default}
+
+  /* audio bar */
+  .audiobar{margin-top:22px}
+  .seekrow{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink-soft);font-weight:600}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:var(--coral-ghost);cursor:pointer;flex:1}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--coral);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:var(--coral)}
+  .controls{display:grid;grid-template-columns:150px 1fr 150px;align-items:center;margin-top:16px;gap:12px}
+  @media(max-width:560px){
+    .controls{grid-template-columns:1fr;justify-items:center}
+  }
+  .transport{display:flex;align-items:center;justify-content:center;gap:12px}
+  .iconbtn{border:0;background:transparent;cursor:pointer;color:var(--coral);font-size:22px;line-height:1;padding:6px;border-radius:8px}
+  .chorusbtn{border:1.5px solid var(--coral-ghost);background:var(--card-soft);color:var(--coral-deep);border-radius:12px;padding:7px 11px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;justify-self:end;transition:background-color .15s,border-color .15s}
+  .chorusbtn:hover{background:#fff;border-color:var(--coral-soft)}
+  @media(max-width:560px){.chorusbtn{justify-self:center}}
+  .playbtn{width:58px;height:58px;border-radius:50%;background:var(--coral);color:#fff;border:0;cursor:pointer;font-size:24px;display:grid;place-items:center;box-shadow:var(--ring);transition:background-color .15s,transform .15s}
+  .playbtn:hover:not(:disabled){background:var(--coral-deep);transform:scale(1.05)}
+  .playbtn:disabled{background:var(--coral-soft);cursor:wait;transform:none}
+  .vol{display:flex;align-items:center;gap:8px;width:150px}
+  .vol input{flex:1}
+  .mutebtn{border:0;background:transparent;cursor:pointer;font-size:18px;padding:2px 4px;line-height:1}
+  .bufmsg{text-align:center;color:var(--coral-deep);font-weight:700;font-size:13px;min-height:18px;margin-top:12px}
+
+  /* answer choices */
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+  @media(max-width:620px){.choices{grid-template-columns:1fr}}
+  .choice{display:flex;align-items:flex-start;gap:10px;border:2px solid var(--coral-ghost);background:#fff;border-radius:16px;padding:14px 16px;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;text-align:left;font-family:inherit;transition:border-color .12s,background-color .12s;line-height:1.4;word-break:break-word}
+  .choice:hover:not(:disabled){border-color:var(--coral-soft);background:var(--card-soft)}
+  .choice:disabled{cursor:default}
+  .choice .kbd{flex-shrink:0;min-width:22px;height:22px;border-radius:7px;background:var(--coral-ghost);color:var(--coral-deep);font-size:12px;font-weight:800;display:inline-grid;place-items:center;margin-top:1px}
+  .choice.correct{border-color:var(--good);background:#E9FAF2;color:#1E7E58}
+  .choice.correct .kbd{background:#3FB984;color:#fff}
+  .choice.wrong{border-color:var(--bad);background:#FDEBE9;color:var(--bad)}
+  .choice.wrong .kbd{background:#E8584A;color:#fff}
+  .choice.dim{opacity:.55}
+
+  .kbd-bar{margin-top:14px;font-size:12px;color:var(--ink-soft);text-align:center;line-height:1.6}
+  .kbd-bar kbd{background:var(--card-soft);border:1px solid var(--coral-ghost);border-radius:5px;padding:1px 6px;font-family:inherit;font-weight:700;color:var(--coral-deep)}
+
+  .actionrow{display:flex;gap:12px;margin-top:18px;align-items:center;flex-wrap:wrap}
+  .btn-next{background:var(--coral);color:#fff;border:0;border-radius:16px;padding:14px 26px;font-weight:800;font-size:15px;cursor:pointer;box-shadow:var(--ring-sm);font-family:inherit}
+  .btn-next:hover:not(:disabled){background:var(--coral-deep)}
+  .btn-next:disabled{background:var(--coral-soft);cursor:wait}
+  .btn-ghost{background:var(--coral-ghost);color:var(--coral-deep);border:0;border-radius:16px;padding:14px 22px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+  .verdict{font-weight:800;font-size:16px}
+  .verdict.good{color:var(--good)}
+  .verdict.bad{color:var(--bad)}
+
+  .reveal{margin-top:18px;padding:16px 18px;border-radius:16px;background:var(--card-soft);border:2px solid var(--coral-ghost);display:none}
+  .reveal.show{display:block;animation:pop .25s ease backwards}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .reveal .rtitle{font-size:19px;font-weight:800;color:var(--coral-deep);margin-bottom:6px;word-break:break-word}
+  .reveal .rmeta{font-size:14px;color:var(--ink);line-height:1.8;word-break:break-word}
+  .reveal .rmeta b{color:var(--coral-deep)}
+
+  /* ---- session history ---- */
+  .history-card{margin-top:20px}
+  .history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .history-head h3{margin:0;font-size:16px;color:var(--coral-deep);font-weight:800}
+  .history-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding-right:4px}
+  .h-item{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 14px;border-radius:14px;background:var(--card-soft);border:1.5px solid var(--coral-ghost);font-size:13.5px;flex-wrap:wrap}
+  .h-item .h-main{font-weight:800;color:var(--ink);word-break:break-word}
+  .h-item .h-tag{font-size:11.5px;font-weight:800;color:var(--coral-deep);margin-left:6px}
+  .h-item .h-song{font-size:12.5px;color:var(--ink-soft);word-break:break-word}
+
+  .hidden{display:none!important}
+  .status{text-align:center;color:var(--ink-soft);padding:50px 20px;font-weight:600}
+  .spinner{width:40px;height:40px;border:4px solid var(--coral-ghost);border-top-color:var(--coral);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .errbox{background:#FDEBE9;border:2px solid var(--bad);color:#9c2d22;border-radius:16px;padding:18px;font-size:14px;line-height:1.7;font-weight:600}
+  .errbox b{display:block;margin-bottom:6px;font-size:15px}
+  footer{text-align:center;color:var(--ink-soft);font-size:12px;margin-top:30px;line-height:1.7}
+  footer a{color:var(--coral-deep)}
+
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="logo"><span class="dot">▶</span> tanime · 猜歌</div>
+    <div class="scoreboard" aria-live="polite">
+      <div class="pill"><div class="n" id="sb-score">0</div><div class="l">分數</div></div>
+      <div class="pill"><div class="n" id="sb-streak">0</div><div class="l">連對</div></div>
+      <div class="pill"><div class="n" id="sb-total">0</div><div class="l">題數</div></div>
+      <div class="pill best" title="個人歷史最高分與最高連對"><div class="n" id="sb-best">0 / 0</div><div class="l">最高分/連對</div></div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: hero (setup), game, and session history -->
+    <div>
+      <!-- SETUP HERO -->
+      <section class="card hero" id="hero">
+        <div class="note" aria-hidden="true">♪</div>
+        <h1>我要猜動漫歌！</h1>
+        <p>從 AnimeThemes 資料庫即時抽題，聽片頭/片尾曲猜是哪部動畫。<br>挑選右側的年份與難度，按「出題！」開始。</p>
+      </section>
+
+      <!-- GAME CARD -->
+      <section class="card hidden" id="game" style="margin-top:0">
+        <!-- loading / error -->
+        <div id="loading" class="status"><div class="spinner"></div><div id="loadmsg">正在抽題…</div></div>
+        <div id="error" class="hidden" role="alert"></div>
+
+        <!-- question -->
+        <div id="question" class="hidden">
+          <div class="play-area">
+            <button type="button" class="cover" id="cover" aria-label="點擊顯示封面提示">
+              <div class="q">?</div>
+              <div class="cap">封面（提示）</div>
+            </button>
+            <div class="qinfo">
+              <div class="sub" id="qtype">???</div>
+              <h2 id="qtitle">???</h2>
+              <div class="facts">
+                <div class="fact">年份：<span class="v" id="f-year">????</span><button type="button" class="tip" id="tip-year">點我提示</button></div>
+                <div class="fact">歌名：<span class="v" id="f-song">????</span><button type="button" class="tip" id="tip-song">點我提示</button></div>
+                <div class="fact">演唱：<span class="v" id="f-artist">????</span><button type="button" class="tip" id="tip-artist">點我提示</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- audio -->
+          <div class="audiobar">
+            <audio id="audio" preload="auto"></audio>
+            <audio id="preload-audio" preload="auto" muted class="hidden"></audio>
+            <div class="seekrow">
+              <span id="cur">00:00</span>
+              <input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="播放進度">
+              <span id="dur">00:00</span>
+            </div>
+            <div class="controls">
+              <div class="vol">
+                <button type="button" class="mutebtn" id="mutebtn" title="靜音切換" aria-label="靜音切換">🔊</button>
+                <input type="range" id="vol" min="0" max="1" value="0.8" step="0.01" aria-label="音量">
+              </div>
+              <div class="transport">
+                <button type="button" class="iconbtn" id="back10" title="倒退10秒 (←)" aria-label="倒退10秒">⏪</button>
+                <button type="button" class="playbtn" id="playbtn" title="播放/暫停 (Space)" aria-label="播放或暫停">▶</button>
+                <button type="button" class="iconbtn" id="fwd10" title="快轉10秒 (→)" aria-label="快轉10秒">⏩</button>
+              </div>
+              <button type="button" class="chorusbtn" id="chorusbtn" title="跳至副歌精華 0:45 (C)">🔥 跳至副歌</button>
+            </div>
+            <div id="bufmsg" class="bufmsg" aria-live="polite"></div>
+          </div>
+
+          <!-- choices -->
+          <div class="choices" id="choices"></div>
+
+          <div class="kbd-bar">
+            快捷鍵：<kbd>1</kbd>~<kbd>6</kbd> 選答案 · <kbd>Space</kbd> 播放/暫停 · <kbd>←</kbd><kbd>→</kbd> ±10秒 · <kbd>C</kbd> 跳副歌 · <kbd>H</kbd> 提示 · <kbd>N</kbd> 下一題/略過
+          </div>
+
+          <!-- reveal -->
+          <div class="reveal" id="reveal">
+            <div class="rtitle" id="r-title"></div>
+            <div class="rmeta" id="r-meta"></div>
+          </div>
+
+          <!-- actions -->
+          <div class="actionrow">
+            <span class="verdict" id="verdict" aria-live="polite"></span>
+            <div style="flex:1"></div>
+            <button type="button" class="btn-ghost" id="skipbtn">略過</button>
+            <button type="button" class="btn-next hidden" id="nextbtn">下一題 ▸</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SESSION HISTORY CARD -->
+      <section class="card history-card hidden" id="history-card">
+        <div class="history-head">
+          <h3>📜 本局答題歷程</h3>
+          <span style="font-size:12px;color:var(--ink-soft)" id="history-count">0 首</span>
+        </div>
+        <div class="history-list" id="history-list"></div>
+      </section>
+    </div>
+
+    <!-- RIGHT: settings -->
+    <aside class="card panel">
+      <div class="seg">
+        <button type="button" class="on" id="mode-anime">動漫</button>
+        <button type="button" id="mode-vocal">VOCALOID<span class="badge">即將推出</span></button>
+      </div>
+      <div id="vocal-note" class="vocal-note hidden">
+        VOCALOID 模式需另接 VocaDB 嵌入式播放器，目前版本提供「動漫」主題曲猜歌模式。
+      </div>
+
+      <div class="block">
+        <h4>所選年份範圍</h4>
+        <div class="rangelabel">目前：<b><span id="lbl-from">2010</span> ～ <span id="lbl-to">2026</span></b></div>
+        <div class="row">
+          <select id="yearFrom" aria-label="起始年份"></select>
+          <span class="arrowsep">至</span>
+          <select id="yearTo" aria-label="結束年份"></select>
+        </div>
+        <div class="presets" id="year-presets">
+          <button type="button" class="chip" data-from="1963" data-to="1999">經典 ~90s</button>
+          <button type="button" class="chip" data-from="2000" data-to="2009">2000s</button>
+          <button type="button" class="chip" data-from="2010" data-to="2019">2010s</button>
+          <button type="button" class="chip" data-preset="recent5">近五年新番</button>
+          <button type="button" class="chip" data-preset="all">全部年份</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h4>難易度</h4>
+        <select id="difficulty" style="width:100%" aria-label="難易度">
+          <option value="easy">簡單（3 選 1）</option>
+          <option value="normal" selected>普通（4 選 1）</option>
+          <option value="hard">困難（6 選 1）</option>
+        </select>
+      </div>
+
+      <div class="block">
+        <h4>片頭 / 片尾</h4>
+        <div class="row" style="justify-content:space-between">
+          <label class="check"><input type="checkbox" id="opOnly"> 僅限片頭 (OP)</label>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="startbtn">出題！</button>
+      <button type="button" class="btn-share" id="sharebtn">🔗 複製目前題庫挑戰連結</button>
+      <button type="button" class="hint-link" id="howto">點我看出題技巧</button>
+      <div id="howbox" class="hidden" style="font-size:12.5px;color:var(--ink-soft);line-height:1.8">
+        年份越大、範圍越窄，題目越集中近年熱門番。先用提示縮小範圍，再按選項作答。<br>
+        聽前奏猜不出來時，可按「🔥 跳至副歌」直接聽 0:45 精華段落！<br>
+        資料與音檔來自 <b>AnimeThemes.moe</b>，需要連網。
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    資料來源：<a href="https://animethemes.moe" target="_blank" rel="noopener noreferrer">AnimeThemes.moe</a>（社群維護的開放資料庫）。本工具僅供個人娛樂使用。
+  </footer>
+</div>
+
+<script src="config.js" onerror="window.APP_CONFIG=window.APP_CONFIG||{}"></script>
+<script type="module">
+/* ------------------------------------------------------------------ *
+ *  端點設定：
+ *  預設走 AnimeThemes 官方 GraphQL API (https://graphql.animethemes.moe/)，
+ *  原生支援瀏覽器 CORS（適用 GitHub Pages 純靜態部署與 file:// 直接開啟）。
+ *  若由本地 server.py 提供或於 config.js 自訂端點，亦可自動回退至本地代理。
+ * ------------------------------------------------------------------ */
+const CFG = window.APP_CONFIG || {};
+const GQL_ENDPOINT = CFG.graphqlUrl || "https://graphql.animethemes.moe/";
+const MEDIA_PROXY_PREFIX = CFG.mediaProxyUrl || "";
+
+const GQL_QUERY = `
+query ($year: Int!, $page: Int!, $first: Int!) {
+  animePagination(year: $year, first: $first, page: $page) {
+    paginatorInfo { lastPage total }
+    data {
+      id
+      year
+      title { romaji native english }
+      synonyms { text language }
+      images { nodes { facet link } }
+      animethemes {
+        id
+        type
+        sequence
+        song {
+          title { romaji native }
+          performances {
+            alias
+            as
+            artist { name { main native } }
+          }
+        }
+        animethemeentries {
+          videos {
+            nodes {
+              link
+              audio { link }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
+// 偵測字串裡是否含日文（平假名／片假名／漢字）
+const CJK = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uff66-\uff9d]/;
+
+function safeHttpUrl(raw) {
+  if (!raw || typeof raw !== "string") return null;
+  try {
+    const u = new URL(raw, location.href);
+    return (u.protocol === "https:" || u.protocol === "http:") ? u.href : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// 相容 GraphQL 與舊版 REST 結構，挑出日文原名
+function pickAnimeJa(anime) {
+  if (!anime) return null;
+  if (anime.title && typeof anime.title === "object") {
+    if (anime.title.native && CJK.test(anime.title.native)) return anime.title.native;
+  }
+  const syns = anime.synonyms || anime.animesynonyms || [];
+  let s = syns.find(x => x && (x.type || x.language || "").toLowerCase() === "native" && x.text && CJK.test(x.text));
+  if (s) return s.text;
+  s = syns.find(x => x && x.text && CJK.test(x.text));
+  if (s) return s.text;
+  const baseName = (anime.title && anime.title.romaji) || anime.name || "";
+  if (CJK.test(baseName)) return baseName;
+  return null;
+}
+
+function getAnimeRomaji(anime) {
+  if (!anime) return "（無標題）";
+  if (anime.title && typeof anime.title === "object") {
+    return anime.title.romaji || anime.title.english || anime.title.native || "（無標題）";
+  }
+  return anime.name || "（無標題）";
+}
+
+/* ---------- state ---------- */
+const NOW_YEAR = new Date().getFullYear();
+const BEST_KEY = "tanime_quiz_best_v1";
+
+function loadBest() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(BEST_KEY) || "{}");
+    return {
+      bestScore: Number.isFinite(raw.bestScore) ? raw.bestScore : 0,
+      bestStreak: Number.isFinite(raw.bestStreak) ? raw.bestStreak : 0,
+    };
+  } catch (_) {
+    return { bestScore: 0, bestStreak: 0 };
+  }
+}
+
+function saveBest(bestScore, bestStreak) {
+  try {
+    localStorage.setItem(BEST_KEY, JSON.stringify({ bestScore, bestStreak }));
+  } catch (_) {}
+}
+
+const initialBest = loadBest();
+
+const S = {
+  pool: [],           // 待出題的 theme 物件
+  queued: new Set(),  // 已進入 pool 或已出過的 theme id（避免重複入池）
+  seen: new Set(),    // 已出過的 theme id
+  nameMap: new Map(), // animeId -> 顯示名稱（日文優先），給干擾選項用
+  history: [],        // 本局已作答紀錄
+  cur: null,
+  score: 0,
+  streak: 0,
+  total: 0,
+  bestScore: initialBest.bestScore,
+  bestStreak: initialBest.bestStreak,
+  answered: false,
+  coverRevealed: false,
+  reqGen: 0,
+  cfg: { from: 2010, to: NOW_YEAR, difficulty: "normal", opOnly: false },
+};
+
+const CHOICES_BY_DIFF = { easy: 3, normal: 4, hard: 6 };
+const pageCache = new Map();     // "year:page" -> { lastPage, list }
+const yearLastPage = new Map();  // year -> lastPage
+
+/* ---------- DOM helpers ---------- */
+const el = id => document.getElementById(id);
+
+/* ---------- year selects & presets ---------- */
+function syncPresetHighlight() {
+  const f = +el("yearFrom").value;
+  const t = +el("yearTo").value;
+  constchips: for (const btn of document.querySelectorAll("#year-presets .chip")) {
+    let pf = +btn.dataset.from;
+    let pt = +btn.dataset.to;
+    if (btn.dataset.preset === "recent5") {
+      pf = NOW_YEAR - 4;
+      pt = NOW_YEAR;
+    } else if (btn.dataset.preset === "all") {
+      pf = 1963;
+      pt = NOW_YEAR;
+    }
+    btn.classList.toggle("active", f === pf && t === pt);
+  }
+}
+
+function syncYearLabels() {
+  el("lbl-from").textContent = el("yearFrom").value;
+  el("lbl-to").textContent = el("yearTo").value;
+  syncPresetHighlight();
+}
+
+function applyUrlQueryToSettings() {
+  try {
+    const sp = new URLSearchParams(location.search || "");
+    const qFrom = parseInt(sp.get("from"), 10);
+    const qTo = parseInt(sp.get("to"), 10);
+    if (Number.isFinite(qFrom) && qFrom >= 1963 && qFrom <= NOW_YEAR) {
+      el("yearFrom").value = String(qFrom);
+    }
+    if (Number.isFinite(qTo) && qTo >= 1963 && qTo <= NOW_YEAR) {
+      el("yearTo").value = String(qTo);
+    }
+    if (+el("yearFrom").value > +el("yearTo").value) {
+      const tmp = el("yearFrom").value;
+      el("yearFrom").value = el("yearTo").value;
+      el("yearTo").value = tmp;
+    }
+    const diff = sp.get("diff");
+    if (diff && Object.prototype.hasOwnProperty.call(CHOICES_BY_DIFF, diff)) {
+      el("difficulty").value = diff;
+    }
+    const op = sp.get("op");
+    if (op === "1" || op === "true") {
+      el("opOnly").checked = true;
+    } else if (op === "0" || op === "false") {
+      el("opOnly").checked = false;
+    }
+    syncYearLabels();
+  } catch (_) {}
+}
+
+function buildShareUrl() {
+  let f = +el("yearFrom").value;
+  let t = +el("yearTo").value;
+  if (f > t) [f, t] = [t, f];
+  const sp = new URLSearchParams();
+  sp.set("from", String(f));
+  sp.set("to", String(t));
+  sp.set("diff", el("difficulty").value);
+  if (el("opOnly").checked) sp.set("op", "1");
+  const base = location.href.split("?")[0].split("#")[0];
+  return `${base}?${sp.toString()}`;
+}
+
+(function initYears() {
+  const fromSel = el("yearFrom");
+  const toSel = el("yearTo");
+  for (let y = NOW_YEAR; y >= 1963; y--) {
+    fromSel.add(new Option(y, y));
+    toSel.add(new Option(y, y));
+  }
+  fromSel.value = String(Math.min(2010, NOW_YEAR));
+  toSel.value = String(NOW_YEAR);
+  fromSel.onchange = toSel.onchange = syncYearLabels;
+
+  for (const btn of document.querySelectorAll("#year-presets .chip")) {
+    btn.onclick = () => {
+      let pf = +btn.dataset.from;
+      let pt = +btn.dataset.to;
+      if (btn.dataset.preset === "recent5") {
+        pf = Math.max(1963, NOW_YEAR - 4);
+        pt = NOW_YEAR;
+      } else if (btn.dataset.preset === "all") {
+        pf = 1963;
+        pt = NOW_YEAR;
+      }
+      fromSel.value = String(pf);
+      toSel.value = String(pt);
+      syncYearLabels();
+    };
+  }
+
+  applyUrlQueryToSettings();
+})();
+
+el("sharebtn").onclick = async () => {
+  const url = buildShareUrl();
+  if (location.protocol !== "file:") {
+    try { history.replaceState(null, "", "?" + url.split("?")[1]); } catch (_) {}
+  }
+  const btn = el("sharebtn");
+  try {
+    await navigator.clipboard.writeText(url);
+    btn.textContent = "✅ 已複製挑戰連結！";
+  } catch (_) {
+    btn.textContent = "🔗 請複製網址列連結";
+  }
+  setTimeout(() => {
+    btn.textContent = "🔗 複製目前題庫挑戰連結";
+  }, 2200);
+};
+
+el("howto").onclick = () => {
+  el("howbox").classList.toggle("hidden");
+};
+el("mode-vocal").onclick = () => {
+  el("vocal-note").classList.toggle("hidden");
+};
+el("mode-anime").onclick = () => {
+  el("vocal-note").classList.add("hidden");
+};
+
+/* ---------- helpers ---------- */
+function fmt(t) {
+  if (!Number.isFinite(t) || t < 0) return "00:00";
+  const m = Math.floor(t / 60);
+  const s = Math.floor(t % 60);
+  return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* 從一個 anime 物件（GraphQL 或 REST 格式）攤平出可出題的 theme 列表 */
+function extractThemes(anime) {
+  const out = [];
+  if (!anime) return out;
+  const imgNodes = (anime.images && anime.images.nodes) || anime.images || [];
+  const coverObj = imgNodes.find(im => im && /large_cover|cover/i.test(im.facet || "")) || imgNodes[0];
+  const coverUrl = coverObj ? safeHttpUrl(coverObj.link) : null;
+
+  const animeJa = pickAnimeJa(anime);
+  const animeRomaji = getAnimeRomaji(anime);
+  const animeDisplay = animeJa || animeRomaji;
+
+  for (const th of (anime.animethemes || [])) {
+    if (!th) continue;
+    if (S.cfg.opOnly && th.type !== "OP") continue;
+
+    let audio = null;
+    let video = null;
+    for (const en of (th.animethemeentries || [])) {
+      const vids = (en && en.videos && en.videos.nodes) || (en && en.videos) || [];
+      for (const vid of vids) {
+        const link = vid && vid.audio && vid.audio.link;
+        const safeLink = safeHttpUrl(link);
+        if (safeLink) {
+          audio = safeLink;
+          video = safeHttpUrl(vid.link);
+          break;
+        }
+      }
+      if (audio) break;
+    }
+    if (!audio) continue;
+
+    const song = th.song || {};
+    let songTitle = "（無資料）";
+    if (song.title && typeof song.title === "object") {
+      songTitle = song.title.native || song.title.romaji || "（無資料）";
+    } else if (typeof song.title_native === "string" || typeof song.title === "string") {
+      songTitle = song.title_native || song.title || "（無資料）";
+    }
+
+    let artistList = [];
+    if (Array.isArray(song.performances)) {
+      artistList = song.performances.map(p => {
+        if (!p) return null;
+        const aName = p.artist && p.artist.name;
+        if (aName && typeof aName === "object") {
+          return aName.native || p.alias || aName.main || null;
+        }
+        return p.alias || (p.artist && p.artist.name) || null;
+      }).filter(Boolean);
+    } else if (Array.isArray(song.artists)) {
+      artistList = song.artists.map(a => a && a.name).filter(Boolean);
+    }
+
+    out.push({
+      id: "th" + th.id,
+      animeId: anime.id,
+      animeDisplay,
+      animeRomaji,
+      year: anime.year,
+      type: th.type + (th.sequence ? (" " + th.sequence) : ""),
+      songTitle,
+      artists: artistList.length ? artistList.join(" × ") : "（無資料）",
+      cover: coverUrl,
+      audio,
+      video,
+    });
+  }
+  return out;
+}
+
+/* ---- 隨機化抽題：跨年份混合，支援雙年份並行預取 ---- */
+const FETCH_SIZE = 15;
+const PER_FILL = 5;
+let recentYears = [];
+let activeAbort = null;
+
+function pickYear() {
+  const { from, to } = S.cfg;
+  const span = to - from + 1;
+  const avoid = Math.min(recentYears.length, Math.max(0, span - 1));
+  for (let i = 0; i < 10; i++) {
+    const y = from + Math.floor(Math.random() * span);
+    if (!recentYears.slice(-avoid).includes(y)) {
+      recentYears.push(y);
+      if (recentYears.length > 4) recentYears.shift();
+      return y;
+    }
+  }
+  return from + Math.floor(Math.random() * span);
+}
+
+async function fetchYearGraphQL(year, page, signal) {
+  const key = `${year}:${page}`;
+  if (pageCache.has(key)) return pageCache.get(key);
+
+  const payload = JSON.stringify({
+    query: GQL_QUERY,
+    variables: { year, page, first: FETCH_SIZE },
+  });
+  const headers = { "Content-Type": "application/json", "Accept": "application/json" };
+
+  let res;
+  try {
+    res = await fetch(GQL_ENDPOINT, { method: "POST", headers, body: payload, signal });
+  } catch (err) {
+    if (signal && signal.aborted) throw err;
+    if (location.protocol !== "file:" && GQL_ENDPOINT !== "/graphql") {
+      res = await fetch("/graphql", { method: "POST", headers, body: payload, signal });
+    } else {
+      throw err;
+    }
+  }
+
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const json = await res.json();
+  if (json.errors && json.errors.length) {
+    throw new Error(json.errors[0].message || "GraphQL 查詢錯誤");
+  }
+  const pageData = (json.data && json.data.animePagination) || {};
+  const lastPage = Math.max(1, (pageData.paginatorInfo && pageData.paginatorInfo.lastPage) || 1);
+  const list = pageData.data || [];
+
+  yearLastPage.set(year, lastPage);
+  const result = { lastPage, list };
+  if (pageCache.size > 60) pageCache.clear();
+  pageCache.set(key, result);
+  return result;
+}
+
+async function fillPool(signal) {
+  const year = pickYear();
+  const knownLast = yearLastPage.get(year);
+  let page = knownLast ? (1 + Math.floor(Math.random() * knownLast)) : (1 + Math.floor(Math.random() * 5));
+
+  let { lastPage, list } = await fetchYearGraphQL(year, page, signal);
+  if (list.length === 0 && lastPage >= 1 && page > lastPage) {
+    page = 1 + Math.floor(Math.random() * lastPage);
+    ({ list } = await fetchYearGraphQL(year, page, signal));
+  }
+
+  const copy = [...list];
+  shuffle(copy);
+  const bucket = [];
+  for (const a of copy) {
+    if (!a) continue;
+    if (a.id != null) {
+      S.nameMap.set(a.id, pickAnimeJa(a) || getAnimeRomaji(a));
+    }
+    for (const th of extractThemes(a)) {
+      if (!S.seen.has(th.id) && !S.queued.has(th.id)) {
+        bucket.push(th);
+      }
+    }
+  }
+  shuffle(bucket);
+  for (const th of bucket.slice(0, PER_FILL)) {
+    if (!S.seen.has(th.id) && !S.queued.has(th.id)) {
+      S.queued.add(th.id);
+      S.pool.push(th);
+    }
+  }
+  shuffle(S.pool);
+}
+
+/* 雙年份並行抽題，將首次開局等待時間減半 */
+async function ensurePool(min, signal) {
+  let rounds = 0;
+  while (S.pool.length < min && rounds < 4) {
+    const batch = (min - S.pool.length > PER_FILL)
+      ? [fillPool(signal), fillPool(signal)]
+      : [fillPool(signal)];
+    const results = await Promise.allSettled(batch);
+    const allRejected = results.every(r => r.status === "rejected");
+    if (allRejected && S.pool.length === 0) {
+      throw results[0].reason;
+    }
+    rounds++;
+  }
+}
+
+/* ---------- UI flow ---------- */
+function showError(titleText, detailLines) {
+  el("loading").classList.add("hidden");
+  el("question").classList.add("hidden");
+  const e = el("error");
+  e.classList.remove("hidden");
+  e.textContent = "";
+
+  const box = document.createElement("div");
+  box.className = "errbox";
+  const b = document.createElement("b");
+  b.textContent = titleText;
+  box.appendChild(b);
+
+  for (const line of detailLines) {
+    const div = document.createElement("div");
+    div.textContent = line;
+    box.appendChild(div);
+  }
+  e.appendChild(box);
+}
+
+function updateScore() {
+  if (S.score > S.bestScore) S.bestScore = S.score;
+  if (S.streak > S.bestStreak) S.bestStreak = S.streak;
+  saveBest(S.bestScore, S.bestStreak);
+
+  el("sb-score").textContent = S.score;
+  el("sb-streak").textContent = S.streak;
+  el("sb-total").textContent = S.total;
+  el("sb-best").textContent = `${S.bestScore} / ${S.bestStreak}`;
+}
+updateScore();
+
+function recordHistory(q, statusIcon) {
+  S.history.unshift({
+    icon: statusIcon,
+    animeDisplay: q.animeDisplay,
+    type: q.type,
+    year: q.year || "?",
+    songTitle: q.songTitle,
+    artists: q.artists,
+  });
+  const card = el("history-card");
+  card.classList.remove("hidden");
+  el("history-count").textContent = `${S.history.length} 首`;
+
+  const list = el("history-list");
+  list.textContent = "";
+  for (const item of S.history.slice(0, 30)) {
+    const row = document.createElement("div");
+    row.className = "h-item";
+
+    const left = document.createElement("div");
+    const main = document.createElement("span");
+    main.className = "h-main";
+    main.textContent = `${item.icon} ${item.animeDisplay}`;
+    const tag = document.createElement("span");
+    tag.className = "h-tag";
+    tag.textContent = `${item.type} · ${item.year}`;
+    left.append(main, tag);
+
+    const right = document.createElement("div");
+    right.className = "h-song";
+    right.textContent = `♪ ${item.songTitle} — ${item.artists}`;
+
+    row.append(left, right);
+    list.appendChild(row);
+  }
+}
+
+/* ---------- Audio handling & Prewarming ---------- */
+const audio = el("audio");
+const preloadAudio = el("preload-audio");
+let curObjUrl = null;
+let audioAbort = null;
+let audioToken = null;
+
+function prewarmNextTrack() {
+  if (!preloadAudio || S.pool.length === 0) return;
+  const nextQ = S.pool[S.pool.length - 1];
+  const safeNext = nextQ && safeHttpUrl(nextQ.audio);
+  if (safeNext && preloadAudio.getAttribute("src") !== safeNext) {
+    preloadAudio.src = safeNext;
+  }
+}
+
+function stopAudio() {
+  audioToken = Symbol("stopped");
+  if (audioAbort) {
+    audioAbort.abort();
+    audioAbort = null;
+  }
+  try { audio.pause(); } catch (_) {}
+  audio.removeAttribute("src");
+  try { audio.load(); } catch (_) {}
+  if (curObjUrl) {
+    URL.revokeObjectURL(curObjUrl);
+    curObjUrl = null;
+  }
+  el("playbtn").textContent = "▶";
+}
+
+function setBuffering(on, msg = "") {
+  const b = el("bufmsg");
+  if (on) {
+    b.textContent = msg || "載入歌曲中…";
+    el("playbtn").disabled = true;
+  } else {
+    b.textContent = msg;
+    el("playbtn").disabled = false;
+  }
+}
+
+async function loadAudio(orig) {
+  stopAudio();
+  const safeOrig = safeHttpUrl(orig);
+  if (!safeOrig) {
+    setBuffering(false, "音訊網址無效，請按「略過」換一首。");
+    return;
+  }
+
+  setBuffering(true);
+  const token = Symbol("audio");
+  audioToken = token;
+
+  if (MEDIA_PROXY_PREFIX) {
+    const ctrl = new AbortController();
+    audioAbort = ctrl;
+    try {
+      const res = await fetch(MEDIA_PROXY_PREFIX + encodeURIComponent(safeOrig), { signal: ctrl.signal });
+      if (!res.ok) throw new Error("media " + res.status);
+      const blob = await res.blob();
+      if (audioToken !== token) return;
+      curObjUrl = URL.createObjectURL(blob);
+      audio.src = curObjUrl;
+    } catch (_) {
+      if (audioToken !== token) return;
+      audio.src = safeOrig;
+    }
+  } else {
+    audio.src = safeOrig;
+  }
+
+  if (audioToken !== token) return;
+  audio.currentTime = 0;
+
+  try {
+    await audio.play();
+    if (audioToken === token) setBuffering(false);
+  } catch (err) {
+    if (audioToken !== token) return;
+    if (err && err.name === "NotAllowedError") {
+      setBuffering(false, "瀏覽器已阻擋自動播放，請按 ▶ 開始播放");
+    } else {
+      setBuffering(false);
+    }
+  }
+}
+
+function jumpToChorus() {
+  if (!audio.src) return;
+  const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 90;
+  const target = dur < 60 ? Math.max(0, dur * 0.45) : 45;
+  audio.currentTime = Math.min(dur, target);
+  if (audio.paused) {
+    audio.play().catch(() => {});
+  }
+}
+
+async function startGame() {
+  if (activeAbort) activeAbort.abort();
+  const ctrl = new AbortController();
+  activeAbort = ctrl;
+  const gen = ++S.reqGen;
+
+  stopAudio();
+
+  let fromY = +el("yearFrom").value;
+  let toY = +el("yearTo").value;
+  if (fromY > toY) {
+    [fromY, toY] = [toY, fromY];
+    el("yearFrom").value = String(fromY);
+    el("yearTo").value = String(toY);
+    syncYearLabels();
+  }
+  S.cfg.from = fromY;
+  S.cfg.to = toY;
+  S.cfg.difficulty = el("difficulty").value;
+  S.cfg.opOnly = el("opOnly").checked;
+
+  if (location.protocol !== "file:") {
+    try {
+      const url = buildShareUrl();
+      history.replaceState(null, "", "?" + url.split("?")[1]);
+    } catch (_) {}
+  }
+
+  S.pool = [];
+  S.queued.clear();
+  S.seen.clear();
+  S.nameMap.clear();
+  S.history = [];
+  el("history-card").classList.add("hidden");
+  el("history-list").textContent = "";
+  recentYears = [];
+  S.score = 0;
+  S.streak = 0;
+  S.total = 0;
+  updateScore();
+
+  el("startbtn").disabled = true;
+  el("hero").classList.add("hidden");
+  el("game").classList.remove("hidden");
+  el("error").classList.add("hidden");
+  el("question").classList.add("hidden");
+  el("loading").classList.remove("hidden");
+  el("loadmsg").textContent = "正在抽題…";
+
+  try {
+    await ensurePool(CHOICES_BY_DIFF[S.cfg.difficulty] + 4, ctrl.signal);
+    if (gen !== S.reqGen) return;
+    if (S.pool.length === 0) {
+      showError("抓不到題目 😢", [
+        "這個年份範圍／條件下找不到有音檔的曲目。試試放寬年份範圍，或取消「僅限片頭」。"
+      ]);
+      return;
+    }
+    await nextQuestion(gen, ctrl.signal);
+  } catch (err) {
+    if (gen !== S.reqGen || (ctrl.signal && ctrl.signal.aborted)) return;
+    showError("抓不到題目 😢", [
+      `錯誤：${err && err.message ? err.message : String(err)}`,
+      "請確認網路連線正常，或稍後再試（AnimeThemes 伺服器可能暫時忙線）。"
+    ]);
+  } finally {
+    if (gen === S.reqGen) {
+      el("startbtn").disabled = false;
+    }
+  }
+}
+
+async function nextQuestion(callerGen, callerSignal) {
+  const isInternal = typeof callerGen === "number";
+  let gen = callerGen;
+  let signal = callerSignal;
+
+  if (!isInternal) {
+    if (activeAbort) activeAbort.abort();
+    const ctrl = new AbortController();
+    activeAbort = ctrl;
+    signal = ctrl.signal;
+    gen = ++S.reqGen;
+  }
+
+  stopAudio();
+  el("nextbtn").disabled = true;
+  el("error").classList.add("hidden");
+
+  // 若池子已經有題目，直接秒切題目並在背景補池；否則顯示載入中
+  if (S.pool.length === 0) {
+    el("question").classList.add("hidden");
+    el("loading").classList.remove("hidden");
+    try {
+      await ensurePool(CHOICES_BY_DIFF[S.cfg.difficulty] + 3, signal);
+    } catch (_) {}
+  } else if (S.pool.length < CHOICES_BY_DIFF[S.cfg.difficulty] + 3) {
+    ensurePool(CHOICES_BY_DIFF[S.cfg.difficulty] + 4, signal).then(() => prewarmNextTrack()).catch(() => {});
+  }
+
+  if (gen !== S.reqGen) return;
+  el("nextbtn").disabled = false;
+
+  if (S.pool.length === 0) {
+    showError("題庫抽完了 🎉", [
+      "目前篩選條件下的題目已抽完，請放寬年份範圍或再按一次「出題！」重新開始。"
+    ]);
+    return;
+  }
+
+  const q = S.pool.pop();
+  S.seen.add(q.id);
+  S.cur = q;
+  S.answered = false;
+  S.coverRevealed = false;
+
+  // reset visuals
+  el("loading").classList.add("hidden");
+  el("question").classList.remove("hidden");
+  el("reveal").classList.remove("show");
+  el("verdict").textContent = "";
+  el("verdict").className = "verdict";
+  el("nextbtn").classList.add("hidden");
+  el("skipbtn").classList.remove("hidden");
+
+  // cover hidden again
+  const cov = el("cover");
+  cov.classList.remove("revealed");
+  cov.textContent = "";
+  const qMark = document.createElement("div");
+  qMark.className = "q";
+  qMark.textContent = "?";
+  const cap = document.createElement("div");
+  cap.className = "cap";
+  cap.textContent = "封面（提示）";
+  cov.append(qMark, cap);
+
+  el("qtype").textContent = "???";
+  el("qtitle").textContent = "???";
+  el("f-year").textContent = "????";
+  el("f-song").textContent = "????";
+  el("f-artist").textContent = "????";
+  ["tip-year", "tip-song", "tip-artist"].forEach(id => {
+    const t = el(id);
+    t.classList.remove("spent");
+    t.textContent = "點我提示";
+    t.disabled = false;
+  });
+
+  el("seek").value = 0;
+  el("cur").textContent = "00:00";
+  el("dur").textContent = "00:00";
+  el("playbtn").textContent = "▶";
+  loadAudio(q.audio);
+  prewarmNextTrack();
+
+  buildChoices(q);
+}
+
+function buildChoices(q) {
+  const n = CHOICES_BY_DIFF[S.cfg.difficulty] || 4;
+  const usedNames = new Set([q.animeDisplay.trim().toLowerCase()]);
+  const others = [...S.nameMap.entries()].filter(([id]) => id !== q.animeId);
+  shuffle(others);
+
+  const picks = [];
+  for (const [id, disp] of others) {
+    if (picks.length >= n - 1) break;
+    const norm = (disp || "").trim().toLowerCase();
+    if (!norm || usedNames.has(norm)) continue;
+    usedNames.add(norm);
+    picks.push({ id, disp });
+  }
+
+  const opts = shuffle([{ id: q.animeId, disp: q.animeDisplay }, ...picks]);
+  const box = el("choices");
+  box.textContent = "";
+  opts.forEach((o, idx) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "choice";
+    b.dataset.aid = String(o.id);
+
+    const kbd = document.createElement("span");
+    kbd.className = "kbd";
+    kbd.textContent = String(idx + 1);
+
+    const txt = document.createElement("span");
+    txt.textContent = o.disp;
+
+    b.append(kbd, txt);
+    b.onclick = () => answer(b, o.id, q);
+    box.appendChild(b);
+  });
+}
+
+function answer(btn, aid, q) {
+  if (S.answered) return;
+  S.answered = true;
+  S.total++;
+  const correct = aid === q.animeId;
+  document.querySelectorAll(".choice").forEach(c => {
+    c.disabled = true;
+    if (c.dataset.aid === String(q.animeId)) c.classList.add("correct");
+    else if (c === btn) c.classList.add("wrong");
+    else c.classList.add("dim");
+  });
+  if (correct) {
+    S.score += 10;
+    S.streak++;
+    el("verdict").textContent = "答對了！ ＋10";
+    el("verdict").className = "verdict good";
+  } else {
+    S.streak = 0;
+    el("verdict").textContent = "答錯了…";
+    el("verdict").className = "verdict bad";
+  }
+  updateScore();
+  recordHistory(q, correct ? "✅" : "❌");
+  revealAll(q);
+}
+
+function skip() {
+  if (S.answered || !S.cur) return;
+  S.answered = true;
+  S.total++;
+  S.streak = 0;
+  document.querySelectorAll(".choice").forEach(c => {
+    c.disabled = true;
+    if (c.dataset.aid === String(S.cur.animeId)) c.classList.add("correct");
+    else c.classList.add("dim");
+  });
+  el("verdict").textContent = "已略過";
+  el("verdict").className = "verdict";
+  updateScore();
+  recordHistory(S.cur, "⏭️");
+  revealAll(S.cur);
+}
+
+function appendMetaLine(container, label, value) {
+  const line = document.createElement("div");
+  line.textContent = `${label}：${value}`;
+  container.appendChild(line);
+}
+
+function revealAll(q) {
+  el("nextbtn").classList.remove("hidden");
+  el("skipbtn").classList.add("hidden");
+  el("qtype").textContent = `${q.type} · ${q.year || "?"}`;
+  el("qtitle").textContent = q.animeDisplay;
+  el("f-year").textContent = q.year || "（無資料）";
+  el("f-song").textContent = q.songTitle || "（無資料）";
+  el("f-artist").textContent = q.artists || "（無資料）";
+
+  el("r-title").textContent = q.animeDisplay;
+  const meta = el("r-meta");
+  meta.textContent = "";
+
+  const headerLine = document.createElement("div");
+  const bType = document.createElement("b");
+  bType.textContent = q.type;
+  const sep = document.createTextNode(" · ");
+  const bYear = document.createElement("b");
+  bYear.textContent = String(q.year || "?");
+  headerLine.append(bType, sep, bYear);
+  meta.appendChild(headerLine);
+
+  if (q.animeRomaji && q.animeRomaji !== q.animeDisplay) {
+    appendMetaLine(meta, "羅馬拼音", q.animeRomaji);
+  }
+  appendMetaLine(meta, "歌名", q.songTitle);
+  appendMetaLine(meta, "演唱", q.artists);
+
+  el("reveal").classList.add("show");
+  revealCover();
+  prewarmNextTrack();
+}
+
+function revealCover() {
+  const q = S.cur;
+  if (!q || S.coverRevealed) return;
+  S.coverRevealed = true;
+  const cov = el("cover");
+  cov.classList.add("revealed");
+  cov.textContent = "";
+
+  const safeCover = safeHttpUrl(q.cover);
+  if (safeCover) {
+    const img = document.createElement("img");
+    img.src = safeCover;
+    img.alt = q.animeDisplay || "cover";
+    img.referrerPolicy = "no-referrer";
+    img.onerror = () => {
+      cov.textContent = "";
+      const icon = document.createElement("div");
+      icon.className = "q";
+      icon.textContent = "🎬";
+      const cap = document.createElement("div");
+      cap.className = "cap";
+      cap.textContent = "無封面";
+      cov.append(icon, cap);
+    };
+    cov.appendChild(img);
+  } else {
+    const icon = document.createElement("div");
+    icon.className = "q";
+    icon.textContent = "🎬";
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    cap.textContent = "無封面";
+    cov.append(icon, cap);
+  }
+}
+
+el("cover").onclick = revealCover;
+
+/* hints */
+function hint(id, value, field) {
+  const tip = el(id);
+  if (tip.classList.contains("spent")) return;
+  el(field).textContent = value || "（無資料）";
+  tip.classList.add("spent");
+  tip.textContent = "（已顯示）";
+  tip.disabled = true;
+}
+el("tip-year").onclick = () => hint("tip-year", S.cur && S.cur.year, "f-year");
+el("tip-song").onclick = () => hint("tip-song", S.cur && S.cur.songTitle, "f-song");
+el("tip-artist").onclick = () => hint("tip-artist", S.cur && S.cur.artists, "f-artist");
+
+function revealNextHint() {
+  if (!S.cur || S.answered) return;
+  if (!el("tip-year").classList.contains("spent")) {
+    el("tip-year").click();
+  } else if (!el("tip-song").classList.contains("spent")) {
+    el("tip-song").click();
+  } else if (!el("tip-artist").classList.contains("spent")) {
+    el("tip-artist").click();
+  } else if (!S.coverRevealed) {
+    revealCover();
+  }
+}
+
+/* ---------- audio controls ---------- */
+const VOL_KEY = "tanime_quiz_volume";
+let savedVol = 0.8;
+try {
+  const v = parseFloat(localStorage.getItem(VOL_KEY));
+  if (Number.isFinite(v) && v >= 0 && v <= 1) savedVol = v;
+} catch (_) {}
+audio.volume = savedVol;
+el("vol").value = String(savedVol);
+
+function syncMuteIcon() {
+  el("mutebtn").textContent = (audio.muted || audio.volume === 0) ? "🔇" : "🔊";
+}
+syncMuteIcon();
+
+el("mutebtn").onclick = () => {
+  audio.muted = !audio.muted;
+  syncMuteIcon();
+};
+
+el("vol").oninput = e => {
+  const v = Math.min(1, Math.max(0, +e.target.value));
+  audio.volume = v;
+  if (v > 0 && audio.muted) audio.muted = false;
+  syncMuteIcon();
+  try { localStorage.setItem(VOL_KEY, String(v)); } catch (_) {}
+};
+
+el("playbtn").onclick = () => {
+  if (!audio.src) return;
+  if (audio.paused) {
+    audio.play().catch(() => {
+      el("bufmsg").textContent = "無法播放此音檔，請按「略過」換一首。";
+    });
+  } else {
+    audio.pause();
+  }
+};
+
+el("chorusbtn").onclick = jumpToChorus;
+
+audio.addEventListener("play", () => {
+  el("playbtn").textContent = "⏸";
+  el("bufmsg").textContent = "";
+});
+audio.addEventListener("pause", () => {
+  el("playbtn").textContent = "▶";
+});
+audio.addEventListener("canplay", () => {
+  el("playbtn").disabled = false;
+  if (!audio.paused) el("bufmsg").textContent = "";
+});
+
+el("back10").onclick = () => {
+  if (!audio.src) return;
+  audio.currentTime = Math.max(0, (audio.currentTime || 0) - 10);
+};
+el("fwd10").onclick = () => {
+  if (!audio.src) return;
+  const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : Infinity;
+  audio.currentTime = Math.min(dur, (audio.currentTime || 0) + 10);
+};
+
+audio.ontimeupdate = () => {
+  if (Number.isFinite(audio.duration) && audio.duration > 0) {
+    el("seek").value = (audio.currentTime / audio.duration) * 100;
+  }
+  el("cur").textContent = fmt(audio.currentTime);
+};
+audio.onloadedmetadata = () => {
+  el("dur").textContent = fmt(audio.duration);
+};
+audio.onended = () => {
+  el("playbtn").textContent = "▶";
+};
+audio.onerror = () => {
+  if (!audio.getAttribute("src")) return;
+  el("playbtn").disabled = false;
+  const actionName = S.answered ? "下一題" : "略過";
+  el("bufmsg").textContent = `這首載入失敗，請按「${actionName}」換一首。`;
+};
+el("seek").oninput = e => {
+  if (Number.isFinite(audio.duration) && audio.duration > 0) {
+    audio.currentTime = (e.target.value / 100) * audio.duration;
+  }
+};
+
+/* ---------- keyboard shortcuts ---------- */
+window.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  const tag = (e.target && e.target.tagName) || "";
+  if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+  if (el("question").classList.contains("hidden")) return;
+
+  if (e.key >= "1" && e.key <= "6" && !S.answered) {
+    const idx = parseInt(e.key, 10) - 1;
+    const btns = document.querySelectorAll("#choices .choice");
+    if (btns[idx] && !btns[idx].disabled) {
+      e.preventDefault();
+      btns[idx].click();
+    }
+  } else if (e.code === "Space") {
+    e.preventDefault();
+    el("playbtn").click();
+  } else if (e.code === "ArrowLeft") {
+    e.preventDefault();
+    el("back10").click();
+  } else if (e.code === "ArrowRight") {
+    e.preventDefault();
+    el("fwd10").click();
+  } else if (e.code === "KeyC") {
+    e.preventDefault();
+    jumpToChorus();
+  } else if (e.code === "KeyH" && !S.answered) {
+    e.preventDefault();
+    revealNextHint();
+  } else if (e.code === "KeyN") {
+    e.preventDefault();
+    if (S.answered && !el("nextbtn").disabled) el("nextbtn").click();
+    else if (!S.answered) el("skipbtn").click();
+  }
+});
+
+/* ---------- buttons ---------- */
+el("startbtn").onclick = () => startGame();
+el("nextbtn").onclick = () => nextQuestion();
+el("skipbtn").onclick = () => skip();
+</script>
+</body>
+</html>
