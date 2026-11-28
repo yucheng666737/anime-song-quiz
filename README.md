@@ -2,7 +2,7 @@
 
 從 [AnimeThemes.moe](https://animethemes.moe) 開放資料庫即時抽題的動漫片頭／片尾曲（OP / ED）猜歌網頁遊戲，支援純靜態線上遊玩與本地伺服器執行。
 
-🔗 **Live Demo（線上立即玩）：[https://yucheng666737.github.io/anime-song-quiz/](https://yucheng666737.github.io/anime-song-quiz/)**
+🔗 **Live Demo（線上立即玩）：[https://woodycheng987.github.io/anime-song-quiz/](https://woodycheng987.github.io/anime-song-quiz/)**
 
 ---
 
@@ -27,12 +27,12 @@
 ## 🚀 快速開始（Quick Start）
 
 ### 方式一：線上直接玩（推薦）
-直接開啟 **[https://yucheng666737.github.io/anime-song-quiz/](https://yucheng666737.github.io/anime-song-quiz/)**，選擇年份範圍與難度後點擊 **「出題！」** 即可開始。
+直接開啟 **[https://woodycheng987.github.io/anime-song-quiz/](https://woodycheng987.github.io/anime-song-quiz/)**，選擇年份範圍與難度後點擊 **「出題！」** 即可開始。
 
 ### 方式二：在電腦本地執行
 1. 下載或 Clone 本專案：
    ```bash
-   git clone https://github.com/yucheng666737/anime-song-quiz.git
+   git clone https://github.com/woodycheng987/anime-song-quiz.git
    cd anime-song-quiz
    ```
 2. **Windows 一鍵啟動**：雙擊 [播放遊戲.bat](./播放遊戲.bat)（會自動偵測系統中的 Python 啟動 [server.py](./server.py) 並開啟瀏覽器）。
